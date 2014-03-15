@@ -33,9 +33,9 @@ public class NewSentimentHarvester {
 		HashMap<String, Integer> newLexicon = new HashMap<String, Integer>();
 		
 		ArrayList<String> arr = new ArrayList<String>();
-		arr.add("data\\GI_positive.txt");
-		arr.add("data\\GI_negative.txt");
-		arr.add("data\\GI_neutral.txt");
+		arr.add("data\\GI_positive.txt"); //0
+		arr.add("data\\GI_negative.txt"); //1
+		//arr.add("data\\GI_neutral.txt"); //2
 		
 		for (int i=0; i<arr.size(); i++){
 			String fn = arr.get(i);
@@ -86,29 +86,80 @@ public class NewSentimentHarvester {
 						selectedTokens.add(token);
 						adjcount++;
 					}
-					System.out.printf("%s\t%s\n", token.tag, token.token);
+					//System.out.printf("%s\t%s\n", token.tag, token.token);
 				}
 				
 				/*
 				 * Apply conjunction rules to mine new lexicon
 				 * */
 				TaggedToken token;
+				TaggedToken ns, ps;
+				String nsu, psu;
+				int n, p, polarity;
 				if (adjcount > 1 && conjcount > 0){
+					for (TaggedToken t : selectedTokens){ System.out.printf("%s\t%s\n", t.tag, t.token);}
+					System.out.println();
 					// adjectives to left and right of conjunction
 					for (int i=0; i<selectedTokens.size(); i++){
 						token = selectedTokens.get(i);
 						if (token.tag.equalsIgnoreCase("&")){
-							getNextAdj
-							getPrevAdj
+							// get next adj
+							if (i+1 < selectedTokens.size() && 
+									selectedTokens.get(i+1).tag.equalsIgnoreCase("A")){
+								n = i+1;
+							} else {
+								n = -1;
+							}
+							
+							// get prev adj
+							if (i-1 >= 0 && selectedTokens.get(i-1).tag.equalsIgnoreCase("A")){
+								p = i-1;
+							}
+							else {
+								p = -1;
+							}
+							
+							if (n!=-1 && p!=-1){
+								ps = selectedTokens.get(p);
+								ns = selectedTokens.get(n);
+								psu = ps.token.toUpperCase();
+								nsu = ns.token.toUpperCase();
+								
+								if (!(Lexicon.containsKey(nsu) &&
+										Lexicon.containsKey(psu)) ){
+									if (Lexicon.containsKey(psu)){
+										//take p's polarity and add n
+										polarity = Lexicon.get(psu);
+										if (token.token.equalsIgnoreCase("and")){
+											newLexicon.put(ns.token, Lexicon.get(psu));
+										}
+										if (token.token.equalsIgnoreCase("or")){
+											newLexicon.put(ns.token, Math.abs(Lexicon.get(psu))-1);
+										}
+									}
+									if (Lexicon.containsKey(nsu)){
+										//take n's polarity and add p
+										polarity = Lexicon.get(nsu);
+										if (token.token.equalsIgnoreCase("and")){
+											newLexicon.put(ps.token, Lexicon.get(nsu));
+										}
+										if (token.token.equalsIgnoreCase("or")){
+											newLexicon.put(ps.token, Math.abs(Lexicon.get(nsu))-1);
+										}
+									}
+								}
+							}
 						}
 					}
 				}
-				
-				
-				
-				System.out.println();
 			}
-			
+		}
+		
+		/*
+		 * Print Lexicon for checking
+		 * */
+		for (String key : newLexicon.keySet()){
+			System.out.println("Key = " + key + " - " + newLexicon.get(key));
 		}
 		
 	}
