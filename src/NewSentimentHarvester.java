@@ -22,6 +22,7 @@ import java.util.Vector;
 public class NewSentimentHarvester {
 	
 	static NewSentimentHarvester nsh;
+	HashMap<String, Integer> newLexicon;
 
 	private void run(String testDataFile) throws IOException, JSONException {
 		
@@ -30,7 +31,7 @@ public class NewSentimentHarvester {
 		String line;
 		BufferedReader br;
 		HashMap<String, Integer> Lexicon = new HashMap<String, Integer>();
-		HashMap<String, Integer> newLexicon = new HashMap<String, Integer>();
+		this.newLexicon = new HashMap<String, Integer>();
 		
 		ArrayList<String> arr = new ArrayList<String>();
 		arr.add("data\\GI_positive.txt"); //0
@@ -156,11 +157,11 @@ public class NewSentimentHarvester {
 		}
 		
 		/*
-		 * Print Lexicon for checking
+		 * Print new Lexicon for checking
 		 * */
-		for (String key : newLexicon.keySet()){
-			System.out.println("Key = " + key + " - " + newLexicon.get(key));
-		}
+//		for (String key : newLexicon.keySet()){
+//			System.out.println("Key = " + key + " - " + newLexicon.get(key));
+//		}
 		
 	}
 	
@@ -170,5 +171,15 @@ public class NewSentimentHarvester {
 		
 		nsh = new NewSentimentHarvester();
 		nsh.run("data\\tweets_train.txt");
+		
+		/*
+		 * Print new Lexicon for checking
+		 * nsh.newLexicon ==> is a HashMap<String, Integer>
+		 * 						where String = keyword
+		 * 						where Integer = 0/1/2 for polarity pos/neg/neu respectively
+		 * */
+		for (String key: nsh.newLexicon.keySet()){
+			System.out.println("Key = " + key + " - " + nsh.newLexicon.get(key));
+		}
 	}
 }
